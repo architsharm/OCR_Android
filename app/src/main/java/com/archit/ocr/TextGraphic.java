@@ -30,8 +30,8 @@ public class TextGraphic extends Graphic {
 
     private static final String TAG = "TextGraphic";
     private static final int TEXT_COLOR = Color.RED;
-    private static final float TEXT_SIZE = 40.0f;
-    private static final float STROKE_WIDTH = 4.0f;
+    private static final float TEXT_SIZE = 30.0f;
+    private static final float STROKE_WIDTH = 2.0f;
 
     private final Paint rectPaint;
     private final Paint textPaint;

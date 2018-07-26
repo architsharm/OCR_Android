@@ -18,6 +18,7 @@ import android.content.Intent;
 import android.content.res.AssetManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Matrix;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
@@ -55,7 +56,9 @@ public class MainActivity extends AppCompatActivity  {
     private ImageView mImageView;
     private Button mButton;
     private Button mCloudButton;
+    private Button mRotateButton;
     private Bitmap mSelectedImage;
+    private Bitmap mSelectedImage1;
     private GraphicOverlay mGraphicOverlay;
     // Max width (portrait mode)
     private Integer mImageMaxWidth;
@@ -71,7 +74,7 @@ public class MainActivity extends AppCompatActivity  {
 
         mButton = findViewById(R.id.button_text);
         mCloudButton = findViewById(R.id.Photo1);
-
+        mRotateButton = findViewById(R.id.rotate);
         mGraphicOverlay = findViewById(R.id.graphic_overlay);
         mButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -86,7 +89,12 @@ public class MainActivity extends AppCompatActivity  {
             }
         });
 
-
+        mRotateButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                rotate();
+            }
+        });
 
 
         
@@ -175,7 +183,7 @@ public class MainActivity extends AppCompatActivity  {
         return new Pair<>(targetWidth, targetHeight);
     }
 
-    
+    /*
     public static Bitmap getBitmapFromAsset(Context context, String filePath) {
         AssetManager assetManager = context.getAssets();
 
@@ -190,8 +198,45 @@ public class MainActivity extends AppCompatActivity  {
 
         return bitmap;
     }
+*/
+    public Bitmap rotateBitmap(Bitmap original, float degrees) {
+        int width = original.getWidth();
+        int height = original.getHeight();
+        Matrix matrix = new Matrix();
+        matrix.preRotate(degrees);
+        Bitmap rotatedBitmap = Bitmap.createBitmap(original, 0, 0, width, height, matrix, true);
+        return rotatedBitmap;
+    }
 
+    private void rotate() {
+        mSelectedImage=rotateBitmap(mSelectedImage1,90);
+        if (mSelectedImage != null) {
 
+            mSelectedImage1=mSelectedImage;
+            // Get the dimensions of the View
+            Pair<Integer, Integer> targetedSize = getTargetedWidthHeight();
+
+            int targetWidth = targetedSize.first;
+            int maxHeight = targetedSize.second;
+
+            // Determine how much to scale down the image
+            float scaleFactor =
+                    Math.max(
+                            (float) mSelectedImage.getWidth() / (float) targetWidth,
+                            (float) mSelectedImage.getHeight() / (float) maxHeight);
+
+            Bitmap resizedBitmap =
+                    Bitmap.createScaledBitmap(
+                            mSelectedImage,
+                            (int) (mSelectedImage.getWidth() / scaleFactor),
+                            (int) (mSelectedImage.getHeight() / scaleFactor),
+                            true);
+
+            mImageView.setImageBitmap(resizedBitmap);
+            mSelectedImage = resizedBitmap;
+        }
+        mGraphicOverlay.clear();
+    }
     private void takePhoto(){
         AlertDialog.Builder pictureDialog = new AlertDialog.Builder(this);
         pictureDialog.setTitle("Select Action");
@@ -261,6 +306,7 @@ public class MainActivity extends AppCompatActivity  {
 
         if (mSelectedImage != null) {
             // Get the dimensions of the View
+            mSelectedImage1=mSelectedImage;
             Pair<Integer, Integer> targetedSize = getTargetedWidthHeight();
 
             int targetWidth = targetedSize.first;
