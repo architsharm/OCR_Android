@@ -27,6 +27,7 @@ import android.support.annotation.NonNull;
 import android.support.v4.content.FileProvider;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
+import android.text.method.ScrollingMovementMethod;
 import android.util.Pair;
 import android.view.View;
 import android.widget.AdapterView;
@@ -34,6 +35,7 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.Spinner;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnFailureListener;
@@ -63,15 +65,17 @@ public class MainActivity extends AppCompatActivity  {
     private Button mButton;
     private Button mCloudButton;
     private Button mRotateButton;
+    private Button mClear;
     private Bitmap mSelectedImage;
     private Bitmap mSelectedImage1;
     private GraphicOverlay mGraphicOverlay;
-
+    private TextView mTextView;
     // Max width (portrait mode)
     private Integer mImageMaxWidth;
     // Max height (portrait mode)
     private Integer mImageMaxHeight;
     public Integer GALLERY;
+    public Integer TEXT12;
     static final int REQUEST_IMAGE_CAPTURE = 1;
     String mCurrentPhotoPath;
     public Integer REQUEST_TAKE_PHOTO;
@@ -82,12 +86,16 @@ public class MainActivity extends AppCompatActivity  {
         setContentView(R.layout.activity_main);
         GALLERY=1000;
         REQUEST_TAKE_PHOTO=2000;
+        TEXT12=0;
         mImageView = findViewById(R.id.image_view);
 
         mButton = findViewById(R.id.button_text);
         mCloudButton = findViewById(R.id.Photo1);
         mRotateButton = findViewById(R.id.rotate);
         mGraphicOverlay = findViewById(R.id.graphic_overlay);
+        mClear=findViewById(R.id.clear);
+        mTextView=findViewById(R.id.text_view);
+        mTextView.setMovementMethod(new ScrollingMovementMethod());
         mButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -108,6 +116,20 @@ public class MainActivity extends AppCompatActivity  {
             public void onClick(View v) {
                 if(mSelectedImage != null) {
                     rotate();
+                }
+            }
+        });
+        mClear.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if(mSelectedImage != null) {
+                    //rotate();
+                    if(TEXT12!=0) {
+
+                        mGraphicOverlay.clear();
+                        mTextView.setText("");
+                        TEXT12=0;
+                    }
                 }
             }
         });
@@ -148,6 +170,7 @@ public class MainActivity extends AppCompatActivity  {
             return;
         }
         mGraphicOverlay.clear();
+        mTextView.setText("");
         for (int i = 0; i < blocks.size(); i++) {
             List<FirebaseVisionText.Line> lines = blocks.get(i).getLines();
             for (int j = 0; j < lines.size(); j++) {
@@ -155,10 +178,17 @@ public class MainActivity extends AppCompatActivity  {
                 for (int k = 0; k < elements.size(); k++) {
                     Graphic textGraphic = new TextGraphic(mGraphicOverlay, elements.get(k));
                     mGraphicOverlay.add(textGraphic);
-
+                    mTextView.append(elements.get(k).getText());
+                    mTextView.append("\t");
                 }
+                mTextView.append("\n");
             }
+            mTextView.append("\t");
         }
+
+        TEXT12=1;
+
+
     }
 /*
     private void dispatchTakePictureIntent() {
@@ -328,6 +358,7 @@ public class MainActivity extends AppCompatActivity  {
                 });
         pictureDialog.show();
         mGraphicOverlay.clear();
+        mTextView.setText("");
     }
 
     public void choosePhotoFromGallary() {
