@@ -50,11 +50,30 @@ import com.google.firebase.ml.vision.text.FirebaseVisionText;
 import com.google.firebase.ml.vision.text.FirebaseVisionTextDetector;
 
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
+
+import com.itextpdf.text.BadElementException;
+import com.itextpdf.text.BaseColor;
+import com.itextpdf.text.Chunk;
+import com.itextpdf.text.Document;
+import com.itextpdf.text.DocumentException;
+import com.itextpdf.text.Element;
+import com.itextpdf.text.Font;
+import com.itextpdf.text.Image;
+import com.itextpdf.text.PageSize;
+import com.itextpdf.text.Paragraph;
+import com.itextpdf.text.pdf.BaseFont;
+import com.itextpdf.text.pdf.PdfWriter;
+import com.itextpdf.text.pdf.draw.LineSeparator;
+
+
+
 
 import static android.media.MediaRecorder.VideoSource.CAMERA;
 
@@ -63,6 +82,7 @@ public class MainActivity extends AppCompatActivity  {
 
     private ImageView mImageView;
     private Button mButton;
+    private Button mPDF;
     private Button mCloudButton;
     private Button mRotateButton;
     private Button mClear;
@@ -79,7 +99,7 @@ public class MainActivity extends AppCompatActivity  {
     static final int REQUEST_IMAGE_CAPTURE = 1;
     String mCurrentPhotoPath;
     public Integer REQUEST_TAKE_PHOTO;
-    private Uri camera_uri;
+    public Uri camera_uri;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -92,6 +112,7 @@ public class MainActivity extends AppCompatActivity  {
         mButton = findViewById(R.id.button_text);
         mCloudButton = findViewById(R.id.Photo1);
         mRotateButton = findViewById(R.id.rotate);
+        mPDF=findViewById(R.id.pdf);
         mGraphicOverlay = findViewById(R.id.graphic_overlay);
         mClear=findViewById(R.id.clear);
         mTextView=findViewById(R.id.text_view);
@@ -108,6 +129,19 @@ public class MainActivity extends AppCompatActivity  {
             @Override
             public void onClick(View v) {
                 takePhoto();
+            }
+        });
+        mPDF.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                try {
+                    createPDF();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                } catch (DocumentException e) {
+                    e.printStackTrace();
+                }
+
             }
         });
 
@@ -373,6 +407,39 @@ public class MainActivity extends AppCompatActivity  {
         startActivityForResult(intent, CAMERA);
     }
 */
+
+public void createPDF() throws IOException, DocumentException {
+    Document document = new Document();
+
+    String directoryPath = android.os.Environment.getExternalStorageDirectory().toString();
+    PdfWriter.getInstance(document, new FileOutputStream(   directoryPath + "/123.pdf"));
+    document.open();
+    Image image = null;  // Change image's name and extension.
+    try {
+        image = Image.getInstance(directoryPath + "/123.jpg");
+        image = Image.getInstance(camera_uri.toString());
+        float scaler = ((document.getPageSize().getWidth() - document.leftMargin()
+                - document.rightMargin() - 0) / image.getWidth()) * 100; // 0 means you have no indentation. If you have any, change it.
+        image.scalePercent(scaler);
+        image.setAlignment(Image.ALIGN_CENTER | Image.ALIGN_TOP);
+    } catch (BadElementException e) {
+        e.printStackTrace();
+    } catch (IOException e) {
+        e.printStackTrace();
+    }
+
+
+    try {
+        document.add(image);
+    } catch (DocumentException e) {
+        e.printStackTrace();
+    }
+
+    document.add(new Paragraph(mTextView.getText().toString()));
+
+    document.close();
+}
+
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
 
@@ -383,6 +450,7 @@ public class MainActivity extends AppCompatActivity  {
         if (requestCode == GALLERY) {
             if (data != null) {
                 Uri contentURI = data.getData();
+                camera_uri=contentURI;
                 try {
                     Bitmap bitmap = MediaStore.Images.Media.getBitmap(this.getContentResolver(), contentURI);
                     //String path = saveImage(bitmap);
