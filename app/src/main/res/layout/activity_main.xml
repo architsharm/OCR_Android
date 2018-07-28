@@ -44,10 +44,9 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:text="Find text"
-        app:layout_constraintBottom_toBottomOf="@id/image_view"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toStartOf="@+id/rotate"
-        app:layout_constraintHorizontal_bias="0.5"
-        app:layout_constraintHorizontal_chainStyle="spread"
+
         app:layout_constraintStart_toStartOf="parent" />
 
     <Button
@@ -55,20 +54,29 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:text="Rotate"
-        app:layout_constraintBottom_toBottomOf="@id/image_view"
-        app:layout_constraintEnd_toStartOf="@+id/clear"
-        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/pdf"
         app:layout_constraintStart_toEndOf="@+id/button_text" />
+
+    <Button
+        android:id="@+id/pdf"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:text="PDF"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/clear"
+
+        app:layout_constraintStart_toEndOf="@+id/rotate" />
 
     <Button
         android:id="@+id/clear"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:text="Clear"
-        app:layout_constraintBottom_toBottomOf="@id/image_view"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toStartOf="@+id/Photo1"
-        app:layout_constraintHorizontal_bias="0.5"
-        app:layout_constraintStart_toEndOf="@+id/rotate" />
+
+        app:layout_constraintStart_toEndOf="@+id/pdf" />
 
     <Button
         android:id="@+id/Photo1"
@@ -77,6 +85,6 @@
         android:text="Photo"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.5"
+
         app:layout_constraintStart_toEndOf="@+id/clear" />
 </android.support.constraint.ConstraintLayout>
